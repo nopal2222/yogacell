@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mitra Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0F53FF; /* Warna Biru Premium */
+            --bg: #F5F7FA;
+            --surface: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-sub: #858585;
+            --success: #00B865;
+            --danger: #FF3B30;
+        }   
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text-main); }
+        
+        /* HELPER */
+        .d-none { display: none !important; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+        /* LOGIN SCREEN */
+        #view-login {
+            height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 30px;
+            background: white;
+        }
+        .login-hero { text-align: center; margin-bottom: 40px; }
+        .login-hero i { font-size: 60px; color: var(--primary); }
+        .input-box {
+            width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px;
+            border: 1px solid #E0E0E0; background: #FAFAFA; font-size: 16px; outline: none;
+            transition: 0.2s;
+        }
+        .input-box:focus { border-color: var(--primary); background: white; }
+        .btn-primary {
+            width: 100%; padding: 16px; background: var(--primary); color: white; border: none;
+            border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(15, 83, 255, 0.3); transition: 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.98); }
+
+        /* HEADER APP */
+        .app-header {
+            background: white; padding: 20px 20px 15px 20px;
+            position: sticky; top: 0; z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .user-info h2 { margin: 0; font-size: 18px; }
+        .user-info p { margin: 0; font-size: 12px; color: var(--text-sub); }
+
+        /* SALDO CARD */
+        .card-saldo {
+            background: linear-gradient(135deg, #0F53FF 0%, #0038FF 100%);
+            margin: 20px; padding: 20px; border-radius: 20px; color: white;
+            box-shadow: 0 10px 25px rgba(15, 83, 255, 0.25);
+            position: relative; overflow: hidden;
+        }
+        .card-saldo::after {
+            content: ''; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        .saldo-label { font-size: 12px; opacity: 0.8; margin-bottom: 5px; }
+        .saldo-amount { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+
+        /* MENU GRID */
+        .menu-container { padding: 0 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .menu-item {
+            background: white; border-radius: 16px; padding: 15px 5px; text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer;
+        }
+        .menu-icon {
+            font-size: 24px; margin-bottom: 8px; color: var(--primary);
+            background: #EFF4FF; width: 45px; height: 45px; line-height: 45px;
+            border-radius: 12px; margin: 0 auto 8px auto;
+        }
+        .menu-text { font-size: 11px; font-weight: 600; color: var(--text-main); }
+
+        /* HISTORY LIST */
+        .section-title { padding: 25px 20px 10px 20px; font-size: 16px; font-weight: 700; }
+        .history-item {
+            background: white; padding: 15px 20px; border-bottom: 1px solid #F0F0F0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .trx-info h4 { margin: 0 0 4px 0; font-size: 14px; }
+        .trx-info p { margin: 0; font-size: 11px; color: var(--text-sub); }
+        .trx-amount { font-weight: 700; font-size: 14px; color: var(--success); }
+
+        /* MODAL BOTTOM SHEET */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 100; opacity: 0; pointer-events: none;
+            transition: 0.3s; display: flex; align-items: flex-end;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .bottom-sheet {
+            background: white; width: 100%; border-radius: 24px 24px 0 0; padding: 25px;
+            transform: translateY(100%); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .modal-overlay.active .bottom-sheet { transform: translateY(0); }
+        
+        /* STRUK DIGITAL */
+        .struk-paper {
+            background: #fff; padding: 20px; border: 1px dashed #ccc; font-family: 'Courier New', monospace;
+            margin-bottom: 15px; position: relative;
+        }
+        .struk-paper::before {
+            content: ''; position: absolute; top: -5px; left: 0; width: 100%; height: 5px;
+            background: radial-gradient(circle, #000 2px, transparent 2.5px) repeat-x; background-size: 10px 10px; opacity: 0.1;
+        }
+
+        /* LOADING */
+        .loader {
+            border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%;
+            width: 24px; height: 24px; animation: spin 1s linear infinite; margin: auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+
+    <div id="view-login">
+        <div class="login-hero">
+            <i class="ri-smartphone-line"></i>
+            <h2 style="margin-top: 10px;">Mitra Pro</h2>
+            <p style="color: var(--text-sub); font-size: 14px;">Aplikasi PPOB Terpercaya</p>
+        </div>
+        <input type="text" id="login-id" class="input-box" placeholder="ID Agen (Contoh: AGEN001)">
+        <input type="password" id="login-pin" class="input-box" placeholder="PIN Keamanan">
+        <button class="btn-primary" onclick="window.doLogin()">MASUK SEKARANG</button>
+        <p style="text-align: center; font-size: 12px; margin-top: 20px; color: #aaa;">Versi 2.0 Enterprise</p>
+    </div>
+
+    <div id="view-app" class="d-none">
+        <header class="app-header flex-between">
+            <div class="user-info">
+                <p>Selamat Datang,</p>
+                <h2 id="name-display">Loading...</h2>
+            </div>
+            <i class="ri-notification-3-line" style="font-size: 24px;"></i>
+        </header>
+
+        <div class="card-saldo">
+            <div class="saldo-label">Saldo Aktif</div>
+            <div class="saldo-amount" id="saldo-display">Rp 0</div>
+            <div class="flex-between" style="margin-top: 20px; opacity: 0.9; font-size: 12px;">
+                <span><i class="ri-line-chart-line"></i> Profit: <span id="profit-display">Rp 0</span></span>
+                <span>ID: <span id="id-display">...</span></span>
+            </div>
+        </div>
+
+        <div class="menu-container">
+            <div class="menu-item" onclick="window.bukaMenu('PULSA')">
+                <div class="menu-icon"><i class="ri-cellphone-fill"></i></div>
+                <div class="menu-text">Pulsa</div>
+            </div>
+            <div class="menu-item" onclick="window.bukaMenu('PLN')">
+                <div class="menu-icon"><i class="ri-flashlight-fill"></i></div>
+                <div class="menu-text">PLN</div>
+            </div>
+            <div class="menu-item" onclick="window.bukaMenu('E-WALLET')">
+                <div class="menu-icon"><i class="ri-wallet-3-fill"></i></div>
+                <div class="menu-text">E-Wallet</div>
+            </div>
+            <div class="menu-item" onclick="alert('Coming Soon')">
+                <div class="menu-icon"><i class="ri-gamepad-fill"></i></div>
+                <div class="menu-text">Games</div>
+            </div>
+        </div>
+
+        <div class="section-title">Transaksi Terakhir</div>
+        <div id="history-list" style="padding-bottom: 20px;">
+            </div>
+    </div>
+
+    <div id="modal-produk" class="modal-overlay">
+        <div class="bottom-sheet">
+            <h3 style="margin-top: 0;">Pilih Produk</h3>
+            <input type="number" id="target-no" class="input-box" placeholder="Masukkan Nomor Tujuan...">
+            <div id="list-produk" style="max-height: 250px; overflow-y: auto;"></div>
+            <button onclick="document.getElementById('modal-produk').classList.remove('active')" 
+                style="width:100%; padding:15px; border:none; background:transparent; color:#888;">Tutup</button>
+        </div>
+    </div>
+
+    <div id="modal-struk" class="modal-overlay">
+        <div class="bottom-sheet" style="background: #F2F2F2;">
+            <div id="struk-area" class="struk-paper">
+                <center>
+                    <h3 style="margin:0;">STRUK TRANSAKSI</h3>
+                    <p style="font-size:10px; margin-bottom:15px;">MITRA PRO PAYMENT</p>
+                </center>
+                <div style="border-bottom: 1px dashed #aaa; margin-bottom: 10px;"></div>
+                
+                <div class="flex-between"><small>Produk:</small> <b id="st-prod">-</b></div>
+                <div class="flex-between"><small>No Tujuan:</small> <span id="st-target">-</span></div>
+                <div class="flex-between"><small>SN:</small> <span id="st-sn">-</span></div>
+                <div class="flex-between"><small>Waktu:</small> <span id="st-time">-</span></div>
+                
+                <div style="border-bottom: 1px dashed #aaa; margin: 10px 0;"></div>
+                <div class="flex-between" style="font-size: 16px;">
+                    <b>TOTAL</b>
+                    <b id="st-price">Rp 0</b>
+                </div>
+                <center style="margin-top: 20px; font-size: 10px; color: #666;">Terima Kasih</center>
+            </div>
+            
+            <button class="btn-primary" onclick="window.downloadStruk()">
+                <i class="ri-download-2-line"></i> SIMPAN GAMBAR
+            </button>
+            <button onclick="document.getElementById('modal-struk').classList.remove('active')" 
+                style="width:100%; padding:15px; border:none; background:transparent; color:#888;">Tutup</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { listenData, prosesTransaksi, formatRupiah, generateStrukImage } from './logic_pulsa.js';
+
+        let currentAgentID = null;
+        let allProducts = [];
+
+        // LOAD DATA
+        listenData('products', (data) => { allProducts = data || []; });
+
+        // LOGIN SYSTEM
+        window.doLogin = () => {
+            const id = document.getElementById('login-id').value;
+            const pin = document.getElementById('login-pin').value;
+            const btn = document.querySelector('#view-login button');
+            
+            btn.innerHTML = '<div class="loader"></div>';
+
+            listenData(`agents/${id}`, (agent) => {
+                btn.innerHTML = 'MASUK SEKARANG';
+                if(agent && agent.pin == pin) {
+                    currentAgentID = id;
+                    document.getElementById('view-login').classList.add('d-none');
+                    document.getElementById('view-app').classList.remove('d-none');
+                    
+                    document.getElementById('name-display').innerText = agent.name;
+                    document.getElementById('id-display').innerText = agent.id;
+                    document.getElementById('saldo-display').innerText = formatRupiah(agent.saldo);
+                    document.getElementById('profit-display').innerText = "+" + formatRupiah(agent.profit);
+                    
+                    loadHistory();
+                } else {
+                    alert("ID atau PIN Salah!");
+                }
+            });
+        }
+
+        function loadHistory() {
+            listenData('transactions', (data) => {
+                if(!data) return;
+                const list = document.getElementById('history-list');
+                const myTrx = Object.values(data).filter(t => t.agent_id === currentAgentID).reverse();
+                
+                let html = '';
+                myTrx.slice(0, 10).forEach(t => {
+                    html += `
+                    <div class="history-item" onclick='window.viewStruk(${JSON.stringify(t)})'>
+                        <div class="trx-info">
+                            <h4>${t.product}</h4>
+                            <p>${t.target} • ${t.time.split(',')[0]}</p>
+                        </div>
+                        <div class="trx-amount">${formatRupiah(t.jual)}</div>
+                    </div>`;
+                });
+                list.innerHTML = html;
+            });
+        }
+
+        // MENU & TRANSAKSI
+        window.bukaMenu = (cat) => {
+            document.getElementById('modal-produk').classList.add('active');
+            const list = document.getElementById('list-produk');
+            list.innerHTML = '';
+
+            allProducts.filter(p => p.category === cat).forEach(p => {
+                let style = p.status !== 'LANCAR' ? 'opacity:0.5; pointer-events:none;' : '';
+                list.innerHTML += `
+                <div class="history-item" style="${style}" onclick="window.beli('${p.code}', ${p.modal})">
+                    <div class="trx-info">
+                        <h4>${p.name}</h4>
+                        <p>Modal: ${formatRupiah(p.modal)}</p>
+                    </div>
+                    <div class="trx-amount" style="color:var(--primary)">BELI</div>
+                </div>`;
+            });
+        }
+
+        window.beli = async (code, modal) => {
+            const no = document.getElementById('target-no').value;
+            if(!no) return alert("Nomor Tujuan wajib diisi!");
+            
+            const jual = prompt(`Harga Modal: ${modal}\nMasukkan Harga Jual ke Pelanggan:`, modal + 2000);
+            if(!jual) return;
+
+            const pin = prompt("Masukkan PIN Transaksi:");
+            if(!pin) return;
+
+            try {
+                // Proses Transaksi
+                const result = await prosesTransaksi(currentAgentID, pin, code, no, jual);
+                document.getElementById('modal-produk').classList.remove('active');
+                
+                // Tampilkan Struk
+                window.viewStruk(result);
+                alert("Transaksi Berhasil!");
+            } catch (err) {
+                alert("GAGAL: " + err);
+            }
+        }
+
+        // STRUK SYSTEM
+        window.viewStruk = (t) => {
+            document.getElementById('st-prod').innerText = t.product;
+            document.getElementById('st-target').innerText = t.target;
+            document.getElementById('st-sn').innerText = t.sn;
+            document.getElementById('st-time').innerText = t.time;
+            document.getElementById('st-price').innerText = formatRupiah(t.jual);
+            document.getElementById('modal-struk').classList.add('active');
+        }
+
+        window.downloadStruk = () => {
+            generateStrukImage('struk-area').then(imgUrl => {
+                // Download Trigger
+                const link = document.createElement('a');
+                link.download = `Struk-${Date.now()}.jpg`;
+                link.href = imgUrl;
+                link.click();
+            }).catch(e => alert("Gagal generate gambar: " + e));
+        }
+    </script>
+</body>
+</html>
